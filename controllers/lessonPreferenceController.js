@@ -5,28 +5,35 @@ exports.saveLessonPreference = async (req, res) => {
   try {
     const { email, preferences } = req.body;
 
-    // Validate input
     if (!email || !preferences) {
       return res.status(400).json({ message: "Email and preferences are required." });
     }
 
-    // Check if a record with the email already exists
-    const existingPreference = await LessonPreference.findOne({ email });
+    // Use findOneAndUpdate with upsert to avoid version conflicts
+    const updatedPreference = await LessonPreference.findOneAndUpdate(
+      { email }, // Find by email
+      { 
+        email, 
+        preferences,
+        updatedAt: new Date() 
+      },
+      { 
+        new: true, // Return updated document
+        upsert: true, // Create if doesn't exist
+        runValidators: true // Run schema validations
+      }
+    );
 
-    if (existingPreference) {
-      // Update the existing record
-      existingPreference.preferences = preferences;
-      await existingPreference.save();
+    const isNew = !updatedPreference.createdAt || 
+                  updatedPreference.createdAt.getTime() === updatedPreference.updatedAt.getTime();
 
-      return res.status(200).json({ message: "Preferences updated successfully!" });
-    } else {
-      // Create a new preference entry
-      const newPreference = new LessonPreference({ email, preferences });
-      await newPreference.save();
+    return res.status(isNew ? 201 : 200).json({ 
+      message: isNew ? "Preferences saved successfully!" : "Preferences updated successfully!",
+      data: updatedPreference
+    });
 
-      return res.status(201).json({ message: "Preferences saved successfully!" });
-    }
   } catch (error) {
+    console.error("Error in saveLessonPreference:", error);
     res.status(500).json({ message: "Server error", error: error.message });
   }
 };
