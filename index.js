@@ -17,8 +17,8 @@ app.use(cors({
     'https://research-project-theta.vercel.app',
     'http://localhost:5004',
     'https://smart-steps-be.vercel.app',
-    'http://localhost:5173/',
-    'http://localhost:4173/'    
+    'http://localhost:5173',
+    'http://localhost:4173'    
   ],
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
