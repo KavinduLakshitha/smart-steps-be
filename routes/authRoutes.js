@@ -9,5 +9,6 @@ router.post("/login", loginUser);
 router.get("/profile", authMiddleware, getUserProfile);
 router.put("/updateProfile", authMiddleware, updateUserProfile);
 router.get("/users", getAllUsers);
+router.delete("/users/:id", deleteUser);
 
 module.exports = router;
